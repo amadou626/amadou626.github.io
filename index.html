@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Amadou Fofana — Data Scientist</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #050b12;
+      --bg2: #0a1420;
+      --bg3: #0f1e2e;
+      --accent: #00e5ff;
+      --accent2: #00ff99;
+      --accent3: #7c3aed;
+      --text: #c8d8e8;
+      --text-dim: #5a7a94;
+      --border: rgba(0,229,255,0.15);
+      --glow: 0 0 24px rgba(0,229,255,0.35);
+      --glow2: 0 0 24px rgba(0,255,153,0.35);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; overflow-x: hidden; }
+    body::after { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px); pointer-events: none; z-index: 9999; }
+    #bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+    /* NAV */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 3rem; background: rgba(5,11,18,0.9); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+    .nav-logo { font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; color: var(--accent); letter-spacing: 0.1em; }
+    .nav-logo span { color: var(--accent2); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; color: var(--text-dim); text-decoration: none; letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.2s; position: relative; }
+    .nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: var(--accent); transition: width 0.3s; }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-links a:hover::after { width: 100%; }
+
+    main { position: relative; z-index: 1; }
+
+    /* HERO */
+    #hero { min-height: 100vh; display: flex; align-items: center; padding: 7rem 3rem 3rem; max-width: 1200px; margin: 0 auto; }
+    .hero-inner { display: grid; grid-template-columns: 1fr auto; gap: 4rem; align-items: center; width: 100%; }
+    .hero-tag { font-family: 'Share Tech Mono', monospace; font-size: 0.73rem; color: var(--accent2); letter-spacing: 0.2em; text-transform: uppercase; display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.2rem; opacity: 0; animation: fadeUp 0.6s ease forwards 0.2s; }
+    .hero-tag::before { content: ''; width: 32px; height: 1px; background: var(--accent2); box-shadow: var(--glow2); }
+    .hero-name { font-family: 'Syne', sans-serif; font-size: clamp(3.2rem, 6.5vw, 5.5rem); font-weight: 800; line-height: 1; letter-spacing: -0.02em; margin-bottom: 0.6rem; opacity: 0; animation: fadeUp 0.7s ease forwards 0.35s; }
+    .hero-name .first { color: #e8f4ff; }
+    .hero-name .last { color: var(--accent); display: block; text-shadow: 0 0 40px rgba(0,229,255,0.4); }
+    .hero-role { font-family: 'Share Tech Mono', monospace; font-size: 0.95rem; color: var(--text-dim); margin-bottom: 1.8rem; opacity: 0; animation: fadeUp 0.7s ease forwards 0.5s; }
+    .hero-role .typed { color: var(--accent); border-right: 2px solid var(--accent); padding-right: 3px; animation: blink 1s step-end infinite; }
+    .hero-accroche { font-size: 1.05rem; color: var(--text); max-width: 520px; line-height: 1.75; margin-bottom: 2rem; font-style: italic; border-left: 3px solid var(--accent2); padding-left: 1rem; opacity: 0; animation: fadeUp 0.7s ease forwards 0.65s; }
+    .hero-accroche span { color: var(--accent2); font-style: normal; font-weight: 500; }
+    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; opacity: 0; animation: fadeUp 0.7s ease forwards 0.8s; }
+    .btn-primary { font-family: 'Share Tech Mono', monospace; font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.85rem 2rem; background: var(--accent); color: var(--bg); border: none; cursor: pointer; text-decoration: none; font-weight: 700; clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px)); transition: all 0.2s; }
+    .btn-primary:hover { background: #fff; box-shadow: var(--glow); }
+    .btn-outline { font-family: 'Share Tech Mono', monospace; font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.85rem 2rem; background: transparent; color: var(--accent); border: 1px solid var(--border); cursor: pointer; text-decoration: none; transition: all 0.2s; }
+    .btn-outline:hover { border-color: var(--accent); box-shadow: var(--glow); }
+
+    /* HERO VISUAL */
+    .hero-visual { width: 220px; height: 220px; position: relative; opacity: 0; animation: fadeIn 1s ease forwards 1s; }
+    .hero-visual svg { width: 100%; height: 100%; }
+    .hex-ring { animation: rotateRing 12s linear infinite; transform-origin: center; }
+    .hex-ring2 { animation: rotateRing 8s linear infinite reverse; transform-origin: center; }
+    .avatar-wrap { position: absolute; inset: 15px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(0,229,255,0.3); box-shadow: var(--glow); display: flex; align-items: center; justify-content: center; background: var(--bg2); }
+    .avatar-wrap img { width: 100%; height: 100%; object-fit: contain ; }
+    .avatar-placeholder { font-family: 'Syne', sans-serif; font-size: 3.8rem; font-weight: 800; color: var(--accent); text-shadow: var(--glow); }
+
+    /* SECTIONS */
+    section { max-width: 1100px; margin: 0 auto; padding: 6rem 3rem; }
+    .section-label { font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; color: var(--accent2); letter-spacing: 0.22em; text-transform: uppercase; display: flex; align-items: center; gap: 1rem; margin-bottom: 0.8rem; }
+    .section-label::after { content: ''; width: 50px; height: 1px; background: var(--accent2); opacity: 0.5; }
+    .section-title { font-family: 'Syne', sans-serif; font-size: clamp(1.9rem, 3.5vw, 2.8rem); font-weight: 800; line-height: 1.1; color: #e8f4ff; margin-bottom: 3rem; }
+    hr.divider { border: none; border-top: 1px solid var(--border); max-width: 1100px; margin: 0 auto; }
+
+    /* ABOUT */
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+    .about-text p { font-size: 0.97rem; line-height: 1.85; color: var(--text-dim); margin-bottom: 1.2rem; }
+    .about-text p strong { color: var(--accent); font-weight: 500; }
+    .about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .stat-card { background: var(--bg2); border: 1px solid var(--border); padding: 1.4rem; position: relative; overflow: hidden; transition: border-color 0.3s, box-shadow 0.3s; }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--accent); box-shadow: var(--glow); }
+    .stat-card:hover { border-color: rgba(0,229,255,0.4); box-shadow: var(--glow); }
+    .stat-num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--accent); }
+    .stat-label { font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--text-dim); margin-top: 0.3rem; letter-spacing: 0.05em; }
+
+    /* FORMATION */
+    .formation-timeline { position: relative; padding-left: 2rem; }
+    .formation-timeline::before { content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 1px; background: linear-gradient(180deg, var(--accent), var(--accent2), var(--accent3)); opacity: 0.4; }
+    .formation-item { position: relative; margin-bottom: 2.5rem; padding-left: 1.5rem; }
+    .formation-item::before { content: ''; position: absolute; left: -2.45rem; top: 8px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: var(--glow); border: 2px solid var(--bg); }
+    .formation-item:nth-child(2)::before { background: var(--accent2); box-shadow: var(--glow2); }
+    .formation-item:nth-child(3)::before { background: var(--accent3); box-shadow: 0 0 14px rgba(124,58,237,0.5); }
+    .formation-date { font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.4rem; }
+    .formation-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; color: #e8f4ff; margin-bottom: 0.3rem; }
+    .formation-sub { font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; }
+    .formation-badge { display: inline-block; margin-top: 0.5rem; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--accent2); border: 1px solid rgba(0,255,153,0.25); padding: 0.2rem 0.6rem; background: rgba(0,255,153,0.05); letter-spacing: 0.08em; }
+
+    /* SKILLS */
+    .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+    .skill-cat { background: var(--bg2); border: 1px solid var(--border); padding: 1.8rem; position: relative; overflow: hidden; transition: all 0.3s; }
+    .skill-cat::after { content: ''; position: absolute; top: 0; right: 0; width: 40px; height: 40px; background: var(--accent); clip-path: polygon(100% 0, 100% 100%, 0 0); opacity: 0.07; transition: opacity 0.3s; }
+    .skill-cat:hover { border-color: rgba(0,229,255,0.35); box-shadow: var(--glow); }
+    .skill-cat:hover::after { opacity: 0.18; }
+    .skill-cat-icon { font-size: 1.6rem; margin-bottom: 0.8rem; }
+    .skill-cat-title { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; color: #e8f4ff; margin-bottom: 1.2rem; }
+    .skill-bar-list { display: flex; flex-direction: column; gap: 0.7rem; }
+    .skill-item-header { display: flex; justify-content: space-between; margin-bottom: 0.28rem; }
+    .skill-item-name { font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; color: var(--text); }
+    .skill-item-pct { font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--accent2); }
+    .skill-bar { height: 3px; background: var(--bg3); position: relative; overflow: hidden; }
+    .skill-bar-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent2)); box-shadow: 0 0 8px rgba(0,229,255,0.5); transition: width 1.3s cubic-bezier(0.4,0,0.2,1); }
+    .skill-tags { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+    .skill-tag { font-family: 'Share Tech Mono', monospace; font-size: 0.67rem; color: var(--accent); border: 1px solid var(--border); padding: 0.22rem 0.55rem; background: rgba(0,229,255,0.04); letter-spacing: 0.04em; transition: all 0.2s; }
+    .skill-tag:hover { border-color: var(--accent); background: rgba(0,229,255,0.1); }
+
+    /* STAGES */
+    .exp-list { display: flex; flex-direction: column; gap: 1.5rem; }
+    .exp-card { background: var(--bg2); border: 1px solid var(--border); padding: 2rem; position: relative; overflow: hidden; transition: all 0.3s; }
+    .exp-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--accent), var(--accent2)); box-shadow: var(--glow); }
+    .exp-card:hover { border-color: rgba(0,229,255,0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.4), var(--glow); transform: translateX(4px); }
+    .exp-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 0.5rem; }
+    .exp-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; color: #e8f4ff; }
+    .exp-company { color: var(--accent); font-size: 0.9rem; font-weight: 500; margin-top: 0.2rem; }
+    .exp-meta { font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--text-dim); letter-spacing: 0.08em; text-align: right; }
+    .exp-meta .location { color: var(--accent2); }
+    .exp-desc { font-size: 0.9rem; color: var(--text-dim); line-height: 1.75; margin-bottom: 1rem; }
+    .exp-desc strong { color: var(--text); font-weight: 500; }
+    .exp-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .exp-tag { font-family: 'Share Tech Mono', monospace; font-size: 0.63rem; color: var(--accent2); border: 1px solid rgba(0,255,153,0.2); padding: 0.18rem 0.5rem; background: rgba(0,255,153,0.04); }
+
+    /* PROJECTS */
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+    .project-card { background: var(--bg2); border: 1px solid var(--border); padding: 2rem; position: relative; overflow: hidden; transition: all 0.3s; display: flex; flex-direction: column; }
+    .project-card::before { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease; }
+    .project-card:hover { border-color: rgba(0,229,255,0.3); transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.5), var(--glow); }
+    .project-card:hover::before { transform: scaleX(1); }
+    .project-img { width: 100%; height: 130px; background: var(--bg3); border: 1px solid var(--border); margin-bottom: 1.2rem; overflow: hidden; }
+    .project-img svg { width: 100%; height: 100%; }
+    .project-num { font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--accent); letter-spacing: 0.15em; margin-bottom: 0.4rem; opacity: 0.6; }
+    .project-type { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; color: var(--accent3); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .project-title { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700; color: #e8f4ff; margin-bottom: 0.7rem; line-height: 1.3; }
+    .project-desc { font-size: 0.86rem; color: var(--text-dim); line-height: 1.65; margin-bottom: 1.2rem; flex: 1; }
+    .project-tags { display: flex; flex-wrap: wrap; gap: 0.38rem; margin-bottom: 1.2rem; }
+    .project-tag { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; color: var(--accent2); border: 1px solid rgba(0,255,153,0.2); padding: 0.18rem 0.5rem; background: rgba(0,255,153,0.04); }
+    .project-link { font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; color: var(--accent); text-decoration: none; letter-spacing: 0.08em; display: inline-flex; align-items: center; gap: 0.4rem; transition: gap 0.2s; margin-top: auto; }
+    .project-link:hover { gap: 0.7rem; }
+
+    /* FOOTER */
+    footer { border-top: 1px solid var(--border); padding: 2.5rem 3rem; display: flex; justify-content: space-between; align-items: center; max-width: 1100px; margin: 0 auto; }
+    .footer-copy { font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: var(--text-dim); }
+    .footer-copy span { color: var(--accent); }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--text-dim); text-decoration: none; letter-spacing: 0.08em; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--accent); }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes blink { 50% { border-color: transparent; } }
+    @keyframes rotateRing { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { gap: 1rem; }
+      .nav-links a { font-size: 0.65rem; }
+      section { padding: 4rem 1.5rem; }
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero-visual { display: none; }
+      .about-grid { grid-template-columns: 1fr; }
+      .exp-header { flex-direction: column; }
+      .exp-meta { text-align: left; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <div class="nav-logo">AF<span>_</span>portfolio</div>
+  <ul class="nav-links">
+    <li><a href="#about">À propos</a></li>
+    <li><a href="#formation">Formation</a></li>
+    <li><a href="#skills">Compétences</a></li>
+    <li><a href="#stages">Stages</a></li>
+    <li><a href="#projects">Projets</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<!-- HERO -->
+<section id="hero" style="padding-top:7rem;padding-bottom:3rem;">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-tag">Data Science · Machine Learning · IA</div>
+      <h1 class="hero-name">
+        <span class="first">Amadou</span>
+        <span class="last">Fofana</span>
+      </h1>
+      <div class="hero-role">&gt;&nbsp;<span class="typed" id="typed-text"></span></div>
+      <p class="hero-accroche">
+        Étudiant en <span>Master 1 Informatique</span> dès septembre 2026,
+        disponible pour une alternance.<br/>Je transforme la donnée en décisions.
+      </p>
+      <div class="hero-btns">
+        <a href="#stages" class="btn-primary">Mes expériences</a>
+        <a href="#projects" class="btn-outline">Mes projets</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <svg viewBox="0 0 220 220" fill="none">
+        <g class="hex-ring">
+          <circle cx="110" cy="110" r="100" stroke="rgba(0,229,255,0.15)" stroke-width="1" stroke-dasharray="6 4"/>
+          <circle cx="110" cy="10" r="4" fill="#00e5ff" opacity="0.9"/>
+          <circle cx="210" cy="110" r="3" fill="#00ff99" opacity="0.7"/>
+          <circle cx="110" cy="210" r="4" fill="#00e5ff" opacity="0.9"/>
+          <circle cx="10" cy="110" r="3" fill="#00ff99" opacity="0.7"/>
+        </g>
+        <g class="hex-ring2">
+          <circle cx="110" cy="110" r="78" stroke="rgba(0,255,153,0.1)" stroke-width="1" stroke-dasharray="3 6"/>
+          <circle cx="110" cy="32" r="3" fill="#7c3aed" opacity="0.7"/>
+          <circle cx="188" cy="110" r="2.5" fill="#00e5ff" opacity="0.5"/>
+          <circle cx="110" cy="188" r="3" fill="#7c3aed" opacity="0.7"/>
+          <circle cx="32" cy="110" r="2.5" fill="#00e5ff" opacity="0.5"/>
+        </g>
+        <line x1="55" y1="110" x2="165" y2="110" stroke="rgba(0,229,255,0.08)" stroke-width="0.5"/>
+        <line x1="110" y1="55" x2="110" y2="165" stroke="rgba(0,229,255,0.08)" stroke-width="0.5"/>
+        <line x1="72" y1="72" x2="148" y2="148" stroke="rgba(0,229,255,0.05)" stroke-width="0.5"/>
+        <line x1="148" y1="72" x2="72" y2="148" stroke="rgba(0,229,255,0.05)" stroke-width="0.5"/>
+      </svg>
+      <div class="avatar-wrap">
+        <img src="IMG_0127.jpg" alt="Amadou Fofana"/> 
+        <!--<span class="avatar-placeholder">AF</span>-->
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- À PROPOS -->
+<section id="about">
+  <div class="section-label reveal">01 / À propos</div>
+  <h2 class="section-title reveal">Qui suis-je ?</h2>
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <p>Je suis <strong>Amadou Fofana</strong>, passionné par la data science et l'intelligence artificielle. Fort d'une double formation en <strong>MIAGE</strong> et en <strong>BUT Science des Données</strong>, j'ai une solide culture informatique et analytique.</p>
+      <p>Mes expériences couvrent des domaines variés : <strong>climatologie ML</strong> dans les Pyrénées, <strong>prospection d'hydrogène naturel</strong> par données satellitaires en France et au Mali, et <strong>analyse de satisfaction</strong> client.</p>
+      <p>Mon ambition : mettre la donnée au service d'un <strong>impact concret</strong> — sciences environnementales, énergie ou applications sociales en Afrique et en Europe.</p>
+    </div>
+    <div class="about-stats reveal">
+      <div class="stat-card"><div class="stat-num" data-target="3">0</div><div class="stat-label">Stages professionnels</div></div>
+      <div class="stat-card"><div class="stat-num" data-target="4">0</div><div class="stat-label">Projets universitaires</div></div>
+      <div class="stat-card"><div class="stat-num" data-target="7">0</div><div class="stat-label">Technologies maîtrisées</div></div>
+      <div class="stat-card"><div class="stat-num">🌍</div><div class="stat-label">France · Mali · Pyrénées</div></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- FORMATION -->
+<section id="formation">
+  <div class="section-label reveal">02 / Formation</div>
+  <h2 class="section-title reveal">Parcours académique</h2>
+  <div class="formation-timeline">
+    <div class="formation-item reveal">
+      <div class="formation-date">Prévu → Septembre 2026</div>
+      <div class="formation-title">Master 1 Informatique</div>
+      <div class="formation-sub">Spécialisation Data Science & Intelligence Artificielle</div>
+      <span class="formation-badge">🎯 Recherche d'alternance dès sept. 2026</span>
+    </div>
+    <div class="formation-item reveal">
+      <div class="formation-date">En cours — 3ème année</div>
+      <div class="formation-title">BUT Science des Données</div>
+      <div class="formation-sub">IUT de Carcassonne — Machine Learning, Statistiques, Data Engineering, Big Data</div>
+      <span class="formation-badge">✅ En cours</span>
+    </div>
+    <div class="formation-item reveal">
+      <div class="formation-date">Licence 2</div>
+      <div class="formation-title">MIAGE</div>
+      <div class="formation-sub">Méthodes Informatiques Appliquées à la Gestion des Entreprises — Informatique, Mathématiques, Gestion</div>
+      <span class="formation-badge">✅ Validée</span>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- COMPÉTENCES -->
+<section id="skills">
+  <div class="section-label reveal">03 / Compétences</div>
+  <h2 class="section-title reveal">Stack technique</h2>
+  <div class="skills-grid">
+    <div class="skill-cat reveal">
+      <div class="skill-cat-icon">🧠</div>
+      <div class="skill-cat-title">Machine Learning & IA</div>
+      <div class="skill-bar-list">
+        <div class="skill-item"><div class="skill-item-header"><span class="skill-item-name">Scikit-learn / Random Forest</span><span class="skill-item-pct">88%</span></div><div class="skill-bar"><div class="skill-bar-fill" data-width="88"></div></div></div>
+        <div class="skill-item"><div class="skill-item-header"><span class="skill-item-name">Régression Logistique</span><span class="skill-item-pct">85%</span></div><div class="skill-bar"><div class="skill-bar-fill" data-width="85"></div></div></div>
+        <div class="skill-item"><div class="skill-item-header"><span class="skill-item-name">Deep Learning (CNN / VGG16)</span><span class="skill-item-pct">80%</span></div><div class="skill-bar"><div class="skill-bar-fill" data-width="80"></div></div></div>
+        <div class="skill-item"><div class="skill-item-header"><span class="skill-item-name">NLP / LLM / Sentiment Analysis</span><span class="skill-item-pct">76%</span></div><div class="skill-bar"><div class="skill-bar-fill" data-width="76"></div></div></div>
+        <div class="skill-item"><div class="skill-item-header"><span class="skill-item-name">RAG (LangChain · FAISS)</span><span class="skill-item-pct">78%</span></div><div class="skill-bar"><div class="skill-bar-fill" data-width="78"></div></div></div>
+      </div>
+    </div>
+    <div class="skill-cat reveal">
+      <div class="skill-cat-icon">🐍</div>
+      <div class="skill-cat-title">Développement & Data</div>
+      <div class="skill-bar-list">
+        <div class="skill-item"><div class="skill-item-header"><span class="skill-item-name">Python</span><span class="skill-item-pct">92%</span></div><div class="skill-bar"><div class="skill-bar-fill" data-width="92"></div></div></div>
+        <div class="skill-item"><div class="skill-item-header"><span class="skill-item-name">Pandas / NumPy / xarray</span><span class="skill-item-pct">85%</span></div><div class="skill-bar"><div class="skill-bar-fill" data-width="85"></div></div></div>
+        <div class="skill-item"><div class="skill-item-header"><span class="skill-item-name">Matplotlib / Seaborn</span><span class="skill-item-pct">83%</span></div><div class="skill-bar"><div class="skill-bar-fill" data-width="83"></div></div></div>
+        <div class="skill-item"><div class="skill-item-header"><span class="skill-item-name">SQL / PostgreSQL / MySQL</span><span class="skill-item-pct">78%</span></div><div class="skill-bar"><div class="skill-bar-fill" data-width="78"></div></div></div>
+        <div class="skill-item"><div class="skill-item-header"><span class="skill-item-name">Modélisation de données (MCD)</span><span class="skill-item-pct">72%</span></div><div class="skill-bar"><div class="skill-bar-fill" data-width="72"></div></div></div>
+      </div>
+    </div>
+    <div class="skill-cat reveal">
+      <div class="skill-cat-icon">🛰️</div>
+      <div class="skill-cat-title">Outils & Déploiement</div>
+      <div class="skill-tags">
+        <span class="skill-tag">ERA5 / CDS API</span>
+        <span class="skill-tag">SRTM / DEM</span>
+        <span class="skill-tag">Données Satellitaires</span>
+        <span class="skill-tag">GDAL / rasterio</span>
+        <span class="skill-tag">Google Sheets API</span>
+        <span class="skill-tag">MIT App Inventor</span>
+        <span class="skill-tag">Capteurs IoT</span>
+        <span class="skill-tag">Bluetooth</span>
+        <span class="skill-tag">Groq API</span>
+        <span class="skill-tag">Hugging Face</span>
+        <span class="skill-tag">TensorFlow / Keras</span>
+        <span class="skill-tag">SentenceTransformers</span>
+        <span class="skill-tag">Git / GitHub</span>
+        <span class="skill-tag">Anaconda</span>
+        <span class="skill-tag">Google Colab</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- STAGES -->
+<section id="stages">
+  <div class="section-label reveal">04 / Expériences</div>
+  <h2 class="section-title reveal">Stages professionnels</h2>
+  <div class="exp-list">
+
+    <div class="exp-card reveal">
+      <div class="exp-header">
+        <div>
+          <div class="exp-title">Stage de Recherche — Downscaling Climatique</div>
+          <div class="exp-company">Projet D2ClimAFLo-Pyr</div>
+        </div>
+        <div class="exp-meta"><div>Avril 2026 — Juillet 2026 (en cours)</div><div class="location">📍 Pyrénées, France</div></div>
+      </div>
+      <p class="exp-desc">Développement d'un <strong>pipeline ML de downscaling</strong> des données climatiques ERA5 sur les Pyrénées à haute résolution spatiale. Entraînement d'un modèle <strong>Random Forest</strong> sur des données SRTM (MNT numérique) pour analyser les <strong>anomalies de floraison</strong> du <em>Delphinium montanum</em>. Intégration des données in-situ des stations <strong>Météo-France</strong> (départements 66 &amp; 11) pour la validation du modèle.</p>
+      <div class="exp-tags"><span class="exp-tag">Random Forest</span><span class="exp-tag">ERA5</span><span class="exp-tag">SRTM / DEM</span><span class="exp-tag">xarray</span><span class="exp-tag">Downscaling</span><span class="exp-tag">Météo-France</span><span class="exp-tag">Écologie</span></div>
+    </div>
+
+    <div class="exp-card reveal">
+      <div class="exp-header">
+        <div>
+          <div class="exp-title">Stage — Prospection d'Hydrogène Blanc</div>
+          <div class="exp-company">Selvert SAS</div>
+        </div>
+        <div class="exp-meta"><div>Avril 2025 — Juillet 2025</div><div class="location">📍 France &amp; Mali</div></div>
+      </div>
+      <p class="exp-desc">Étude géospatiale pour la <strong>détection d'hydrogène naturel (blanc)</strong> en France et au Mali. Téléchargement et traitement de <strong>données satellitaires</strong> pour extraire 4 variables clés : <strong>anomalies thermiques</strong>, <strong>anomalies gravimétriques</strong>, <strong>réflectance au sol</strong> et <strong>mouvements verticaux du sol</strong>. Ces variables ont été combinées dans un dataset unifié, puis modélisées par <strong>régression logistique binaire</strong> — un score proche de 0 indique l'absence d'hydrogène, proche de 1 une présence probable — afin de cartographier les zones à fort potentiel.</p>
+      <div class="exp-tags"><span class="exp-tag">Données Satellitaires</span><span class="exp-tag">Régression Logistique</span><span class="exp-tag">Anomalies Thermiques</span><span class="exp-tag">Gravimétrie</span><span class="exp-tag">Réflectance</span><span class="exp-tag">Géospatial</span><span class="exp-tag">Hydrogène Blanc</span></div>
+    </div>
+
+    <div class="exp-card reveal">
+      <div class="exp-header">
+        <div>
+          <div class="exp-title">Stage — Analyse de Satisfaction</div>
+          <div class="exp-company">Restaurant Inter-Administratif de Carcassonne</div>
+        </div>
+        <div class="exp-meta"><div>Juin 2024 — Juillet 2024</div><div class="location">📍 Carcassonne, France</div></div>
+      </div>
+      <p class="exp-desc">Collecte, traitement et analyse statistique de <strong>questionnaires de satisfaction</strong> auprès des adhérents. Identification des points forts et axes d'amélioration via des <strong>visualisations de données</strong> et un rapport de synthèse à destination de la direction.</p>
+      <div class="exp-tags"><span class="exp-tag">Analyse de données</span><span class="exp-tag">Questionnaires</span><span class="exp-tag">Statistiques</span><span class="exp-tag">Visualisation</span><span class="exp-tag">Reporting</span></div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- PROJETS -->
+<section id="projects">
+  <div class="section-label reveal">05 / Projets</div>
+  <h2 class="section-title reveal">Projets universitaires</h2>
+  <div class="projects-grid">
+
+    <!-- RAG -->
+    <div class="project-card reveal">
+      <div class="project-img">
+        <svg viewBox="0 0 300 130" fill="none">
+          <rect width="300" height="130" fill="#0a1420"/>
+          <circle cx="150" cy="65" r="28" stroke="rgba(0,229,255,0.3)" stroke-width="1" fill="rgba(0,229,255,0.05)"/>
+          <circle cx="75" cy="35" r="14" stroke="rgba(0,255,153,0.3)" stroke-width="1" fill="rgba(0,255,153,0.05)"/>
+          <circle cx="225" cy="35" r="14" stroke="rgba(0,255,153,0.3)" stroke-width="1" fill="rgba(0,255,153,0.05)"/>
+          <circle cx="65" cy="95" r="10" stroke="rgba(124,58,237,0.4)" stroke-width="1" fill="rgba(124,58,237,0.05)"/>
+          <circle cx="235" cy="95" r="10" stroke="rgba(124,58,237,0.4)" stroke-width="1" fill="rgba(124,58,237,0.05)"/>
+          <line x1="124" y1="50" x2="89" y2="42" stroke="rgba(0,229,255,0.2)" stroke-width="0.8"/>
+          <line x1="176" y1="50" x2="211" y2="42" stroke="rgba(0,229,255,0.2)" stroke-width="0.8"/>
+          <line x1="130" y1="82" x2="75" y2="87" stroke="rgba(0,229,255,0.15)" stroke-width="0.8"/>
+          <line x1="170" y1="82" x2="225" y2="87" stroke="rgba(0,229,255,0.15)" stroke-width="0.8"/>
+          <text x="150" y="69" text-anchor="middle" font-family="monospace" font-size="9" fill="rgba(0,229,255,0.8)">RAG</text>
+          <text x="75" y="39" text-anchor="middle" font-family="monospace" font-size="6" fill="rgba(0,255,153,0.7)">FAISS</text>
+          <text x="225" y="39" text-anchor="middle" font-family="monospace" font-size="6" fill="rgba(0,255,153,0.7)">Llama</text>
+        </svg>
+      </div>
+      <div class="project-num">// 01</div>
+      <div class="project-type">Universitaire — NLP · GenAI</div>
+      <div class="project-title">Système RAG — BUT Science des Données</div>
+      <p class="project-desc">Système RAG déployé sur Hugging Face Spaces pour répondre à des questions sur le programme BUT SD. Pipeline LangChain + SentenceTransformers + FAISS + Groq API (Llama 3.3 70B). Inclut aussi une comparaison régression logistique vs LLMs pour l'analyse de sentiment sur des avis AlloCiné.</p>
+      <div class="project-tags"><span class="project-tag">RAG</span><span class="project-tag">LangChain</span><span class="project-tag">FAISS</span><span class="project-tag">Llama 3.3</span><span class="project-tag">Groq API</span><span class="project-tag">NLP</span><span class="project-tag">HF Spaces</span></div>
+      <a href="https://huggingface.co/spaces/Fofana55/RAG-BUT-SD" target="_blank" class="project-link">Voir sur HF Spaces →</a>
+    </div>
+
+    <!-- IoT -->
+    <div class="project-card reveal">
+      <div class="project-img">
+        <svg viewBox="0 0 300 130" fill="none">
+          <rect width="300" height="130" fill="#0a1420"/>
+          <rect x="110" y="42" width="80" height="46" rx="2" fill="rgba(0,229,255,0.06)" stroke="rgba(0,229,255,0.35)" stroke-width="1"/>
+          <text x="150" y="62" text-anchor="middle" font-family="monospace" font-size="7" fill="rgba(0,229,255,0.7)">MCU</text>
+          <text x="150" y="76" text-anchor="middle" font-family="monospace" font-size="6" fill="rgba(0,229,255,0.4)">IoT Board</text>
+          <polyline points="110,55 65,55 65,28 42,28" stroke="rgba(0,255,153,0.35)" stroke-width="1" fill="none"/>
+          <polyline points="110,75 65,75 65,102 42,102" stroke="rgba(0,255,153,0.35)" stroke-width="1" fill="none"/>
+          <polyline points="190,55 235,55 235,28 258,28" stroke="rgba(0,229,255,0.35)" stroke-width="1" fill="none"/>
+          <polyline points="190,75 235,75 235,102 258,102" stroke="rgba(0,229,255,0.35)" stroke-width="1" fill="none"/>
+          <rect x="22" y="19" width="20" height="16" rx="2" stroke="rgba(0,255,153,0.5)" stroke-width="0.8" fill="rgba(0,255,153,0.07)"/>
+          <text x="32" y="30" text-anchor="middle" font-family="monospace" font-size="5" fill="rgba(0,255,153,0.8)">T°</text>
+          <rect x="22" y="94" width="20" height="16" rx="2" stroke="rgba(0,255,153,0.5)" stroke-width="0.8" fill="rgba(0,255,153,0.07)"/>
+          <text x="32" y="105" text-anchor="middle" font-family="monospace" font-size="5" fill="rgba(0,255,153,0.8)">CO2</text>
+          <rect x="258" y="19" width="20" height="16" rx="2" stroke="rgba(0,229,255,0.5)" stroke-width="0.8" fill="rgba(0,229,255,0.07)"/>
+          <text x="268" y="30" text-anchor="middle" font-family="monospace" font-size="5" fill="rgba(0,229,255,0.8)">BT</text>
+          <rect x="258" y="94" width="20" height="16" rx="2" stroke="rgba(0,229,255,0.5)" stroke-width="0.8" fill="rgba(0,229,255,0.07)"/>
+          <text x="268" y="105" text-anchor="middle" font-family="monospace" font-size="5" fill="rgba(0,229,255,0.8)">DB</text>
+        </svg>
+      </div>
+      <div class="project-num">// 02</div>
+      <div class="project-type">Universitaire — IoT · Data Engineering</div>
+      <div class="project-title">Objet Connecté — Collecte Environnementale</div>
+      <p class="project-desc">Développement d'un objet connecté mesurant des paramètres environnementaux via des capteurs IoT. Transmission par Bluetooth, envoi vers MySQL et Google Sheets. Application mobile de visualisation développée avec MIT App Inventor.</p>
+      <div class="project-tags"><span class="project-tag">IoT</span><span class="project-tag">Capteurs</span><span class="project-tag">Bluetooth</span><span class="project-tag">MySQL</span><span class="project-tag">Google Sheets</span><span class="project-tag">MIT App Inventor</span></div>
+      <!--<span class="project-link">IUT Carcassonne — Oct. 2024 →</span>-->
+	  <a href="poster_IOT.pdf" target="_blank" class="project-link">Voir le poster →</a>
+    </div>
+
+    <!-- Classification -->
+    <div class="project-card reveal">
+      <div class="project-img">
+        <svg viewBox="0 0 300 130" fill="none">
+          <rect width="300" height="130" fill="#0a1420"/>
+          <circle cx="20" cy="18" r="1" fill="white" opacity="0.5"/><circle cx="80" cy="12" r="1.2" fill="white" opacity="0.4"/><circle cx="200" cy="20" r="1" fill="white" opacity="0.6"/><circle cx="265" cy="8" r="0.8" fill="white" opacity="0.4"/><circle cx="270" cy="45" r="1" fill="white" opacity="0.5"/><circle cx="10" cy="75" r="1" fill="white" opacity="0.3"/>
+          <rect x="28" y="40" width="18" height="50" rx="2" fill="rgba(0,229,255,0.08)" stroke="rgba(0,229,255,0.3)" stroke-width="0.8"/>
+          <rect x="52" y="46" width="14" height="38" rx="2" fill="rgba(0,229,255,0.1)" stroke="rgba(0,229,255,0.35)" stroke-width="0.8"/>
+          <rect x="72" y="52" width="12" height="26" rx="2" fill="rgba(0,229,255,0.12)" stroke="rgba(0,229,255,0.4)" stroke-width="0.8"/>
+          <rect x="90" y="55" width="10" height="20" rx="2" fill="rgba(0,229,255,0.14)" stroke="rgba(0,229,255,0.45)" stroke-width="0.8"/>
+          <line x1="110" y1="65" x2="138" y2="65" stroke="rgba(0,255,153,0.5)" stroke-width="1"/>
+          <polygon points="138,61 146,65 138,69" fill="rgba(0,255,153,0.5)"/>
+          <text x="160" y="34" font-family="monospace" font-size="7" fill="rgba(0,229,255,0.7)">Galaxy</text>
+          <rect x="152" y="36" width="50" height="7" rx="1" fill="rgba(0,229,255,0.2)"/>
+          <text x="160" y="50" font-family="monospace" font-size="7" fill="rgba(0,255,153,0.7)">Star</text>
+          <rect x="152" y="52" width="35" height="7" rx="1" fill="rgba(0,255,153,0.2)"/>
+          <text x="160" y="66" font-family="monospace" font-size="7" fill="rgba(124,58,237,0.8)">Nebula</text>
+          <rect x="152" y="68" width="42" height="7" rx="1" fill="rgba(124,58,237,0.2)"/>
+          <text x="160" y="82" font-family="monospace" font-size="7" fill="rgba(255,170,0,0.7)">Quasar</text>
+          <rect x="152" y="84" width="28" height="7" rx="1" fill="rgba(255,170,0,0.15)"/>
+          <text x="215" y="34" font-family="monospace" font-size="6" fill="rgba(0,229,255,0.5)">88%</text>
+          <text x="193" y="50" font-family="monospace" font-size="6" fill="rgba(0,255,153,0.5)">76%</text>
+          <text x="200" y="66" font-family="monospace" font-size="6" fill="rgba(124,58,237,0.5)">81%</text>
+          <text x="186" y="82" font-family="monospace" font-size="6" fill="rgba(255,170,0,0.5)">65%</text>
+          <text x="150" y="118" text-anchor="middle" font-family="monospace" font-size="6" fill="rgba(0,229,255,0.3)">VGG16 Transfer Learning</text>
+        </svg>
+      </div>
+      <div class="project-num">// 03</div>
+      <div class="project-type">Universitaire — Computer Vision</div>
+      <div class="project-title">Classification d'Objets Astronomiques</div>
+      <p class="project-desc">Modèles CNN et transfer learning VGG16 pour classifier des objets astronomiques en 11 et 4 classes. Optimisation des matrices de confusion et fine-tuning du pipeline d'entraînement.</p>
+      <div class="project-tags"><span class="project-tag">CNN</span><span class="project-tag">VGG16</span><span class="project-tag">Transfer Learning</span><span class="project-tag">TensorFlow</span><span class="project-tag">11 classes</span></div>
+      <!--<span class="project-link">Projet BUT SD →</span>-->
+	  <a href="poster_CNN.pdf" target="_blank" class="project-link">Voir le poster →</a>
+    </div>
+
+    <!-- Data Warehouse -->
+    <div class="project-card reveal">
+      <div class="project-img">
+        <svg viewBox="0 0 300 130" fill="none">
+          <rect width="300" height="130" fill="#0a1420"/>
+          <rect x="110" y="45" width="80" height="40" rx="2" fill="rgba(0,229,255,0.07)" stroke="rgba(0,229,255,0.4)" stroke-width="1"/>
+          <text x="150" y="62" text-anchor="middle" font-family="monospace" font-size="7" fill="rgba(0,229,255,0.9)">FAIT</text>
+          <text x="150" y="75" text-anchor="middle" font-family="monospace" font-size="6" fill="rgba(0,229,255,0.5)">Vera Series</text>
+          <rect x="20" y="16" width="65" height="26" rx="2" fill="rgba(0,255,153,0.05)" stroke="rgba(0,255,153,0.3)" stroke-width="0.8"/>
+          <text x="52" y="32" text-anchor="middle" font-family="monospace" font-size="6" fill="rgba(0,255,153,0.7)">dim_temps</text>
+          <rect x="215" y="16" width="65" height="26" rx="2" fill="rgba(0,255,153,0.05)" stroke="rgba(0,255,153,0.3)" stroke-width="0.8"/>
+          <text x="247" y="32" text-anchor="middle" font-family="monospace" font-size="6" fill="rgba(0,255,153,0.7)">dim_série</text>
+          <rect x="20" y="88" width="65" height="26" rx="2" fill="rgba(124,58,237,0.06)" stroke="rgba(124,58,237,0.3)" stroke-width="0.8"/>
+          <text x="52" y="104" text-anchor="middle" font-family="monospace" font-size="6" fill="rgba(124,58,237,0.7)">dim_acteur</text>
+          <rect x="215" y="88" width="65" height="26" rx="2" fill="rgba(124,58,237,0.06)" stroke="rgba(124,58,237,0.3)" stroke-width="0.8"/>
+          <text x="247" y="104" text-anchor="middle" font-family="monospace" font-size="6" fill="rgba(124,58,237,0.7)">dim_genre</text>
+          <line x1="85" y1="29" x2="110" y2="57" stroke="rgba(0,229,255,0.2)" stroke-width="0.8"/>
+          <line x1="215" y1="29" x2="190" y2="57" stroke="rgba(0,229,255,0.2)" stroke-width="0.8"/>
+          <line x1="85" y1="101" x2="110" y2="73" stroke="rgba(0,229,255,0.2)" stroke-width="0.8"/>
+          <line x1="215" y1="101" x2="190" y2="73" stroke="rgba(0,229,255,0.2)" stroke-width="0.8"/>
+          <rect x="115" y="108" width="70" height="14" rx="2" fill="rgba(0,229,255,0.05)" stroke="rgba(0,229,255,0.2)" stroke-width="0.5"/>
+          <text x="150" y="118" text-anchor="middle" font-family="monospace" font-size="6" fill="rgba(0,229,255,0.5)">PostgreSQL</text>
+        </svg>
+      </div>
+      <div class="project-num">// 04</div>
+      <div class="project-type">Universitaire — Data Engineering</div>
+      <div class="project-title">Data Warehouse — Série Vera</div>
+      <p class="project-desc">Collecte et organisation des données de la série Vera. Traitement avec Python, conception d'un modèle conceptuel en étoile (MCD), stockage et gestion dans une base PostgreSQL.</p>
+      <div class="project-tags"><span class="project-tag">Data Warehouse</span><span class="project-tag">PostgreSQL</span><span class="project-tag">Python</span><span class="project-tag">MCD</span><span class="project-tag">ETL</span></div>
+      <!--<span class="project-link">IUT Carcassonne — Sept. 2024 →</span>-->
+	  <a href="MCD.png" target="_blank" class="project-link">Voir le MCD →</a>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="footer-copy">© 2025 <span>Amadou Fofana</span> — Data Scientist</div>
+  <div class="footer-links">
+    <a href="https://huggingface.co/Fofana55" target="_blank">Hugging Face</a>
+    <a href="https://github.com/amadou626">GitHub</a>
+    <a href="https://www.linkedin.com/in/amadou-fofana-b70a732b1/">LinkedIn</a>
+  </div>
+</footer>
+
+</main>
+
+<script>
+// CANVAS PARTICLES
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+const N = 65;
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+resize(); window.addEventListener('resize', resize);
+function mkP() { return { x: Math.random()*W, y: Math.random()*H, vx:(Math.random()-.5)*.3, vy:(Math.random()-.5)*.3, r:Math.random()*1.4+.4, a:Math.random()*.45+.15 }; }
+for (let i=0;i<N;i++) particles.push(mkP());
+function draw() {
+  ctx.clearRect(0,0,W,H);
+  for (let i=0;i<N;i++) for (let j=i+1;j<N;j++) {
+    const dx=particles[i].x-particles[j].x, dy=particles[i].y-particles[j].y, d=Math.sqrt(dx*dx+dy*dy);
+    if (d<130) { ctx.beginPath(); ctx.strokeStyle=`rgba(0,229,255,${.07*(1-d/130)})`; ctx.lineWidth=.5; ctx.moveTo(particles[i].x,particles[i].y); ctx.lineTo(particles[j].x,particles[j].y); ctx.stroke(); }
+  }
+  for (const p of particles) { ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=`rgba(0,229,255,${p.a})`; ctx.fill(); p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>W)p.vx*=-1; if(p.y<0||p.y>H)p.vy*=-1; }
+  requestAnimationFrame(draw);
+}
+draw();
+
+// TYPED TEXT
+const roles = ['Data Scientist', 'ML Engineer', 'BUT Science des Données', 'Alternant Master 1 — Sept. 2026'];
+let ri=0, ci=0, del=false;
+const el = document.getElementById('typed-text');
+function type() {
+  const word = roles[ri];
+  if (!del) { el.textContent=word.slice(0,++ci); if(ci===word.length){del=true;setTimeout(type,2200);return;} }
+  else { el.textContent=word.slice(0,--ci); if(ci===0){del=false;ri=(ri+1)%roles.length;} }
+  setTimeout(type, del?40:75);
+}
+setTimeout(type, 1200);
+
+// SCROLL REVEAL
+const revEls = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const idx = Array.from(e.target.parentElement.children).indexOf(e.target);
+      e.target.style.transitionDelay = `${idx * 0.07}s`;
+      e.target.classList.add('visible');
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+revEls.forEach(el => io.observe(el));
+
+// SKILL BARS
+const barObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.querySelectorAll('.skill-bar-fill').forEach(b => { b.style.width = b.dataset.width + '%'; }); barObs.unobserve(e.target); }
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('.skill-cat').forEach(c => barObs.observe(c));
+
+// COUNTERS
+const counterObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const target = parseInt(e.target.dataset.target);
+      if (!isNaN(target)) {
+        let cur = 0; const step = target / 30;
+        const t = setInterval(() => { cur = Math.min(cur+step, target); e.target.textContent = Math.floor(cur); if(cur>=target) clearInterval(t); }, 40);
+      }
+      counterObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('.stat-num[data-target]').forEach(el => counterObs.observe(el));
+</script>
+</body>
+</html>
